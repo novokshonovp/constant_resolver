@@ -78,8 +78,8 @@ class ConstantResolver
 
     @load_paths.each do |load_path|
       Dir[glob_path(load_path)].each do |file_path|
-        root_relative_path = file_path.delete_prefix!(@root_path)
-        const_name = @inflector.camelize(root_relative_path.delete_prefix(load_path).delete_suffix!(".rb"))
+        root_relative_path = delete_prefix!(file_path, @root_path)
+        const_name = @inflector.camelize(delete_suffix!(delete_prefix(root_relative_path, load_path), ".rb"))
         existing_entry = @file_map[const_name]
 
         if existing_entry
@@ -152,5 +152,17 @@ class ConstantResolver
     else
       resolve_traversing_namespace_path(const_name, current_namespace_path[0..-2])
     end
+  end
+
+  def delete_prefix(str, value)
+    str.sub(/\A#{value}/, "")
+  end
+
+  def delete_prefix!(str, value)
+    str.sub!(/\A#{value}/, "")
+  end
+
+  def delete_suffix!(str, value)
+    str.sub!(/#{value}\z/, "")
   end
 end
